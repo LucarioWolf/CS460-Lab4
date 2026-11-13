@@ -33,12 +33,14 @@ import java.util.HashMap;
 
 public class SignUpActivity extends AppCompatActivity {
 
-
+    //Variables for XML bindings and Preference Manager Object and image's bytecode
     private ActivitySignUpBinding binding;
     private PreferenceManager preferenceManager;
-
     private String encodeImage;
 
+    /**
+     * Creates the Page instance as well as binding XML elements and preference manager.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +52,9 @@ public class SignUpActivity extends AppCompatActivity {
         preferenceManager = new PreferenceManager(getApplicationContext());
     }
 
+    /**
+     * Sets Listeners to the Sign In and Create Account button
+     */
     private void setListeners() {
         binding.textSignIn.setOnClickListener(v -> onBackPressed());
 
@@ -67,10 +72,17 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * A Helper Function to create a Toast of the message
+     * @param message is the string we are sending to the toast
+     */
     private void showToast(String message){
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Creates a new User Account to the firebase with user's inputs
+     */
     private void SignUp(){
 
         //Check Loading
@@ -80,11 +92,13 @@ public class SignUpActivity extends AppCompatActivity {
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         HashMap<String, String> user = new HashMap<>();
 
+        //Set the user inputs to a hashmap to send to the database
         user.put(Constants.KEY_NAME, binding.inputName.getText().toString());
         user.put(Constants.KEY_EMAIL, binding.inputEmail.getText().toString());
         user.put(Constants.KEY_PASSWORD, binding.inputPassword.getText().toString());
         user.put(Constants.KEY_IMAGE, encodeImage);
 
+        //Send the user's account info to the database in collection of Users
         database.collection(Constants.KEY_COLLECTION_USERS)
                 .add(user)
                 .addOnSuccessListener(documentReference -> {
@@ -107,14 +121,21 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Converts a image selected from a user into byte code.
+     * @param bitmap The bitmap of the image
+     * @return A base 64 string of code of the image
+     */
     private String encodeImage(Bitmap bitmap){
         int previewWidth = 150;
         int previewHeight = bitmap.getHeight()*previewWidth/ bitmap.getWidth();
 
+        //Scaled the image to fit the imageview
         Bitmap previewBitmap = Bitmap.createScaledBitmap(bitmap, previewWidth, previewHeight, false);
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
+        //Compress the image into an array of bytes
         previewBitmap.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream);
 
         byte[] bytes = byteArrayOutputStream.toByteArray();
@@ -122,6 +143,10 @@ public class SignUpActivity extends AppCompatActivity {
         return Base64.encodeToString(bytes, Base64.DEFAULT);
     }
 
+    /**
+     * Checks is user's input are valid
+     * @return false id user's inputs is invalid, otherwise returns true
+     */
     private  Boolean isValidateSignUpDetails(){
         if(encodeImage == null){
             showToast("Please Select Image");
@@ -176,6 +201,10 @@ public class SignUpActivity extends AppCompatActivity {
             }
     );
 
+    /**
+     * Toggles the progressBar and removes button to let app loads
+     * @param isLoading boolean to check if the app was loading or not
+     */
     private void loading(Boolean isLoading){
         if(isLoading){
             binding.buttonSignUp.setVisibility(View.INVISIBLE);

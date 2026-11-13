@@ -23,9 +23,13 @@ import java.util.HashMap;
 
 public class SignInActivity extends AppCompatActivity {
 
+    //Variables for XML bindings and Preference Manager Object
     private ActivitySignInBinding binding;
     private PreferenceManager preferenceManager;
 
+    /**
+     * Creates the Page instance as well as binding XML elements and preference manager.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +41,9 @@ public class SignInActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Sets Listeners to the Sign In and Create Account button
+     */
     private void setListeners() {
         binding.textCreateNewAccount.setOnClickListener(v ->
                 startActivity(new Intent(getApplicationContext(), SignUpActivity.class)));
@@ -49,10 +56,18 @@ public class SignInActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * A Helper Function to create a Toast of the message
+     * @param message is the string we are sending to the toast
+     */
     private void showToast(String message){
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Toggles the progressBar and removes button to let app loads
+     * @param isLoading boolean to check if the app was loading or not
+     */
     private void loading(Boolean isLoading){
         if(isLoading){
             binding.buttonSignIn.setVisibility(View.INVISIBLE);
@@ -65,11 +80,18 @@ public class SignInActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Connects to the firebase to see if user inputs are valid and in the database
+     */
     private void SignIn() {
+
+        //Toggles progress bar
         loading(true);
 
+        //Connect to Firebase's Database
         FirebaseFirestore database = FirebaseFirestore.getInstance();
 
+        //Checks the database's Collection to see if user is in the databse.
         database.collection(Constants.KEY_COLLECTION_USERS)
                 .whereEqualTo(Constants.KEY_EMAIL, binding.inputEmail.getText().toString())
                 .whereEqualTo(Constants.KEY_PASSWORD, binding.inputPassword.getText().toString())
@@ -86,8 +108,6 @@ public class SignInActivity extends AppCompatActivity {
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
-
-
                     }
                     else{
                         loading(false);
@@ -97,6 +117,10 @@ public class SignInActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Checks is user's input are valid
+     * @return false id user's inputs is invalid, otherwise returns true
+     */
     private boolean isValidateSignInDetails() {
         if(binding.inputEmail.getText().toString().trim().isEmpty()){
             showToast("Please Enter Email");
